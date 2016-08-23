@@ -1,13 +1,18 @@
-from api import db, sql
+from api import db, migration
+import os
 
-connection = db.connection()
-cursor = connection.cursor()
+migration.create_schema_version()
+migrations = migration.get_filenames("migrations")
 
-print connection.version
-cursor.close()
+versions = [f.split('__')[0] for f in migrations]
 
-connection.commit()
-connection.close()
+applied = migration.get_schema_version()
 
+print migrations
+print applied
 
-sql.run_migration_file('teste.sql')
+if migration.verify_applied_migrations(versions, applied):
+    migration.apply_migrations(migrations, applied)
+    print "Migration success!"
+else:
+    print "Migration failed."
