@@ -1,8 +1,9 @@
 from api import db, migration
-import os
+from os import getcwd
+from os.path import join 
 
 migration.create_schema_version()
-migrations = migration.get_filenames("migrations")
+migrations = migration.get_filenames(join(getcwd(), 'migrations'))
 
 versions = [f.split('__')[0] for f in migrations]
 
