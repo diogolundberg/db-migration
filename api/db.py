@@ -8,12 +8,12 @@ config = ConfigParser()
 
 try:
     config.read(join(os.getcwd(), 'config.cfg'))
-    database = config['Database']
-    host = database.get('HOST', 'localhost')
-    port = database.get('PORT', '1521')
-    service = database.get('SERVICE', 'XE')
-    user = database['USER']
-    password = database['PASSWORD']
+    database = dict(config.items('Database'))
+    host = database.get('host', 'localhost')
+    port = database.get('port', '1521')
+    service = database.get('service', 'XE')
+    user = database['user']
+    password = database['password']
 except KeyError:
     print('Erro ao ler arquivo: ', str(join(os.getcwd(), 'config.cfg')))
 
