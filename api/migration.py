@@ -4,7 +4,7 @@ from os import getcwd
 from sys import path
 from os.path import join, dirname
 from api import db
-
+import subprocess
 
 def get_filenames(dirname):
     files = os.listdir(dirname)
@@ -14,24 +14,9 @@ def get_filenames(dirname):
 
 
 def run_file(filename, dirname='migrations'):
-    file = open(join(getcwd(), dirname, filename + '.sql'))
-    
-    sql = file.read()
-    sqls = sql.split(';')
-
-    connection = db.connection()
-    cursor = connection.cursor()
-
-    for sql in sqls:
-        sql = sql.replace('\n', ' ').strip()
-        if len(sql) > 0:
-            print sql
-            cursor.execute(sql)
-            connection.commit()
-
-    cursor.close()
-    connection.close()
-
+    cmdline = ['echo', 'exit', 'sqlplus', db.user + '/' + db.password + '@' + db.host, '@', join(getcwd(), 'migrations', filename)]
+    process = subprocess.Popen(cmdline, stdout=subprocess.PIPE)
+    return process.communicate()
 
 def exists_schema_version():
     connection = db.connection()
@@ -99,6 +84,7 @@ def apply_migrations(filenames, schema_version):
     migrations = filenames[len(schema_version):]
 
     for migration in migrations:
-        run_file(migration)
+        out, err = run_file(migration)
+        print out, err
         insert_version(migration.split('__')[0])
         print 'Migration', migration, 'applied.'
