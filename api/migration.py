@@ -14,7 +14,8 @@ def get_filenames(dirname):
 
 
 def run_file(filename, dirname='migrations'):
-    cmdline = ['echo', 'exit', 'sqlplus', db.user + '/' + db.password + '@' + db.host, '@', join(getcwd(), 'migrations', filename)]
+    connection_string = '%(user)s/%(password)s@%(host)s:%(port)s/%(service)s' % {'user': db.user, 'password': db.password, 'host': db.host, 'port': db.port, 'service': db.service}
+    cmdline = ['sqlplus', connection_string, '@', join(getcwd(), 'migrations', filename)]
     process = subprocess.Popen(cmdline, stdout=subprocess.PIPE)
     return process.communicate()
 
@@ -86,5 +87,6 @@ def apply_migrations(filenames, schema_version):
     for migration in migrations:
         out, err = run_file(migration)
         print out, err
+
         insert_version(migration.split('__')[0])
         print 'Migration', migration, 'applied.'
